@@ -1,0 +1,39 @@
+name: tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  tests:
+    name: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Build Docker Images
+        run: docker compose build
+
+      - name: Run Containers & Tests
+        run: |
+          docker compose up -d server cache database
+          docker compose run tests
+
+      - name: Show Server Logs
+        if: always()
+        run: docker compose logs --no-log-prefix server
+
+      - name: Show Cache Logs
+        if: always()
+        run: docker compose logs --no-log-prefix cache
+
+      - name: Show Database Logs
+        if: always()
+        run: docker compose logs --no-log-prefix database
+
+      - name: Stop Docker Compose
+        if: always()
+        run: docker compose down

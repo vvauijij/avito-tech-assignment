@@ -1,0 +1,16 @@
+@startuml entities
+
+title Entities Diagram for Banner Service
+
+entity Banner {
+    banner_id: int64
+    feature_id : int64
+    tag_ids : array[int64]
+
+    content : JSON
+    is_active : bool
+    created_at : date-time
+    updated_at : date-time
+}
+
+@enduml

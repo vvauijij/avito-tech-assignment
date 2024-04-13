@@ -1,0 +1,52 @@
+version: "3"
+
+services:
+  server:
+    container_name: banner-server
+    image: banner-server
+    build:
+        context: server
+        dockerfile: build/server.dockerfile
+    volumes:
+      - ./secrets/public.pub:/tmp/public.pub
+    environment:
+      - ENV=TEST
+    command: [
+      "--server", "8080",
+      "--redis", "cache:6379",
+      "--mongo", "mongodb://database:27017",
+      "--public", "/tmp/public.pub",
+    ]
+    ports:
+      - 8080:8080
+    depends_on:
+      - cache
+      - database
+  
+  cache:
+    container_name: banner-cache
+    image: redis:alpine
+
+  database:
+    container_name: banner-database
+    image: mongodb/mongodb-community-server:6.0-ubi8
+    volumes:
+      - banner-database:/data/db
+  
+  tests:
+    container_name: banner-tests
+    image: banner-tests
+    build:
+        context: tests
+        dockerfile: tests.dockerfile
+    volumes:
+      - ./secrets/private.pem:/tmp/private.pem
+    environment:
+      - SERVER=http://server:8080
+      - PRIVATE=/tmp/private.pem
+    depends_on:
+      - server
+
+
+volumes:
+  banner-database:

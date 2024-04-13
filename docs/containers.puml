@@ -1,0 +1,23 @@
+@startuml containers
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_WITH_LEGEND()
+
+title Containers diagram for Banner Service
+
+Person(user, "User/Admin")
+
+
+System_Boundary(c1, "Banner Service") {
+    Container(banner_server, "Banner Server", "Go, Docker Container", "Provides banner service functionality for users and admins via REST API")
+    Container(banner_cache, "Banner Cache", "Redis", "Caches banners")
+    ContainerDb(banner_database, "Banner Database", "MongoDB", "Stores banners")
+}
+
+Rel(user, banner_server, "Uses", "HTTP")
+
+Rel_Right(banner_server, banner_database, "Reads/Writes")
+Rel_Down(banner_server, banner_cache, "Reads/Writes")
+
+
+@enduml
